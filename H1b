@@ -1,0 +1,48 @@
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+os.chdir("C://Users//Janvi Acharya//Downloads")
+df=pd.read_csv("h1b_kaggle.csv")
+df.head()
+df.shape
+df.dtypes
+df.isnull().sum()
+df1 = df.copy()
+df.dropna(axis=0, how='any', thresh=None, subset=None, inplace=True)
+df.shape
+df.isnull().sum()
+cat = pd.get_dummies(df['FULL_TIME_POSITION'])
+df2 = pd.concat([df,cat],1)
+df2.drop(['FULL_TIME_POSITION'], axis=1, inplace=True)
+X = df2.drop(['CASE_STATUS','Unnamed: 0','EMPLOYER_NAME','SOC_NAME','JOB_TITLE','WORKSITE'],1)
+y = df2['CASE_STATUS']
+from sklearn.model_selection import train_test_split as tts
+X_train,X_test,y_train,y_test=tts(X,y,test_size=0.2,random_state=42)
+#Decision Tree Classifier
+from sklearn.tree import DecisionTreeClassifier
+classifier = DecisionTreeClassifier(criterion="entropy", random_state=42)
+classifier.fit(X_train,y_train)
+y_pred = classifier.predict(X_test)
+from sklearn.metrics import confusion_matrix
+cm =confusion_matrix(y_test,y_pred)
+from sklearn.metrics import accuracy_score
+accuracy_score(y_test,y_pred)
+#Random Forest Classifier
+from sklearn.ensemble import RandomForestClassifier
+classifier = RandomForestClassifier(n_estimators=10,criterion="entropy", random_state=42)
+classifier.fit(X_train,y_train)
+y_pred = classifier.predict(X_test)
+from sklearn.metrics import confusion_matrix
+cm =confusion_matrix(y_test,y_pred)
+from sklearn.metrics import accuracy_score
+accuracy_score(y_test,y_pred)
+#KNN Classification
+from sklearn.neighbors import KNeighborsClassifier
+classifier = KNeighborsClassifier(n_neighbors=5)
+classifier.fit(X_train,y_train)
+y_pred = classifier.predict(X_test)
+from sklearn.metrics import confusion_matrix
+cm =confusion_matrix(y_test,y_pred)
+from sklearn.metrics import accuracy_score
+accuracy_score(y_test,y_pred)
