@@ -1,0 +1,88 @@
+import pandas as pd
+import os
+os.chdir("C://Users//Janvi Acharya//Downloads")
+df=pd.read_csv("Admission_Predict_Ver1.1.csv")
+df.head()
+df.isna().sum()
+df.dtypes
+df=df.drop(["Serial No."],1)
+df.head()
+y=df["Chance of Admit "]
+y.head()
+df=df.drop(["Chance of Admit "],1)
+#########################################################
+categorical=df[["University Rating","Research"]]
+categorical.head()
+numerical=df.drop(["University Rating","Research"],1)
+numerical.head()
+numerical["Chance of Admit "]=y
+numerical.head()
+#######################################################
+import numpy as np
+import seaborn as sns
+sns.heatmap(numerical.corr(), annot = True)
+##################################################
+selected_features=["SOP","LOR ","CGPA"]
+main=pd.concat([numerical,categorical],1)
+main.head()
+X=main.drop(["Chance of Admit "],1)
+y=main["Chance of Admit "]
+X.head()
+#############################################################
+from sklearn.model_selection import train_test_split as tts
+X_train,X_test,y_train,y_test=tts(X,y,test_size=0.2,random_state=42)
+from sklearn.metrics import r2_score,mean_squared_error,median_absolute_error
+from sklearn.linear_model import LinearRegression,RidgeCV,LassoCV,ElasticNetCV
+lin_reg=LinearRegression()
+lin_reg.fit(X_train,y_train)
+y_pred= lin_reg.predict(X_test)
+r2_score(y_test,y_pred)
+#np.sqrt(mean_squared_error(y_test,y_pred))
+y_pred
+##################################################################
+X1=X[selected_features]
+X1.head()
+X1_train,X1_test,y_train,y_test=tts(X1,y,test_size=0.2,random_state=42)
+from sklearn.metrics import r2_score,mean_squared_error,median_absolute_error
+from sklearn.linear_model import LinearRegression,RidgeCV,LassoCV,ElasticNetCV
+lin_reg=LinearRegression()
+lin_reg.fit(X1_train,y_train)
+y_pred= lin_reg.predict(X1_test)
+r2_score(y_test,y_pred)
+#np.sqrt(mean_squared_error(y_test,y_pred))
+##################################################################
+#grid search 
+from sklearn.model_selection import cross_val_score,GridSearchCV
+from sklearn.neighbors import KNeighborsRegressor
+knn=KNeighborsRegressor(n_neighbors=5)
+cross_val_score(knn,X,y,cv=10,scoring="r2")
+params={"n_neighbors":np.arange(1,16)}
+knn_cv=GridSearchCV(knn,param_grid=params,cv=10,scoring="r2")
+knn_cv.fit(X,y)
+knn_cv.best_score_
+knn_cv.best_params_
+###############################################################
+#with features
+#grid search 
+from sklearn.model_selection import cross_val_score,GridSearchCV
+from sklearn.neighbors import KNeighborsRegressor
+knn=KNeighborsRegressor(n_neighbors=5)
+cross_val_score(knn,X1,y,cv=10,scoring="r2")
+params={"n_neighbors":np.arange(1,16)}
+knn_cv=GridSearchCV(knn,param_grid=params,cv=10,scoring="r2")
+knn_cv.fit(X1,y)
+knn_cv.best_score_
+################################################################
+from sklearn.ensemble import RandomForestRegressor
+regressor = RandomForestRegressor(n_estimators=20, random_state=0)  
+regressor.fit(X_train, y_train)  
+y_pred = regressor.predict(X_test) 
+regressor.score(X,y)
+#y_pred
+#############################################################
+#on selected features
+from sklearn.ensemble import RandomForestRegressor
+regressor = RandomForestRegressor(n_estimators=20, random_state=0)  
+regressor.fit(X1_train, y_train)  
+y_pred = regressor.predict(X1_test) 
+regressor.score(X1,y)
