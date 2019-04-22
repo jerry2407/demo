@@ -1,0 +1,31 @@
+#ridge for machine learning previously we did knn
+from sklearn.linear_model import LinearRegression,RidgeCV,LassoCV,ElasticNetCV
+lin_reg=LinearRegression()
+X=df.drop(["life"],1)
+y=df["life"]
+X=pd.get_dummies(X)
+scaler=MinMaxScaler()
+col_names=list(X)
+X=scaler.fit_transform(X)
+X=pd.DataFrame(X)
+X.columns=col_names
+X_train,X_test,y_train,y_test=tts(X,y,test_size=0.2,random_state=42)
+ridge=RidgeCV(alphas=np.arange(0.1,2,0.1))
+ridge.fit(X,y)
+ridge.alpha_
+ridge.score(X,y)
+ridge.coef_
+####################################################
+#ridge by grid search
+from sklearn.linear_model import Ridge
+ridge = Ridge()
+params = {"alpha":np.arange(0.1,2,0.1)}
+ridge_g_cv =GridSearchCV(ridge, param_grid=params, cv = 15)
+ridge_g_cv.fit(X,y)
+ridge_g_cv.best_params_
+ridge_g_cv.best_score_
+############################################################################
+#lasso by lassoCV
+lasso=LassoCV(alphas=np.arange(0.1,2,0.1))
+lasso.fit(X,y)
+lasso.score(X,y)
