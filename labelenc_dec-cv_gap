@@ -1,0 +1,22 @@
+from sklearn.tree import DecisionTreeClassifier
+dtc = DecisionTreeClassifier()
+import pandas as pd
+df = pd.read_csv("gapminder.csv")
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+df["Region"] = le.fit_transform(df["Region"])
+X = df.drop(["Region"],1)
+y = df["Region"]
+dtc
+import numpy as np
+params = {"criterion":["gini", "entropy"],
+        "max_depth":np.arange(1,20), 
+         "min_samples_split":np.arange(0.01,0.13, 0.01)}
+from  sklearn.model_selection import GridSearchCV
+dtc_cv = GridSearchCV(dtc, param_grid=params, cv = 10)
+dtc_cv.fit(X,y)
+dtc_cv.best_params_
+dtc_cv.best_score_
+dtc_cv.best_estimator_
+ok = pd.Series(dtc_cv.best_estimator_.feature_importances_, index = list(X))
+ok.sort_values(ascending=True).plot(kind = "barh")
