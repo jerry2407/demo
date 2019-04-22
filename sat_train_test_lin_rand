@@ -1,0 +1,62 @@
+import pandas as pd
+import os
+os.chdir("C://Users//Janvi Acharya//Downloads")
+df=pd.read_csv("satander_train.csv")
+df.head()
+df.isna().sum()
+df.shape
+###########################################################
+y=df["TARGET"]
+df=df.drop(["TARGET"],1)
+from sklearn.preprocessing import MinMaxScaler
+scaler=MinMaxScaler()
+cols=list(df) 
+df=scaler.fit_transform(df)
+df=pd.DataFrame(df,columns=cols)
+df.head()
+df["TARGET"]=y
+X=df.drop(["TARGET","ID"],1)
+y=df["TARGET"]
+#y.head()
+X.head()
+X.shape
+##########################################################
+import collections
+collections.Counter(y)
+from sklearn.model_selection import train_test_split as tts
+X_train,X_test,y_train,y_test=tts(X,y,test_size=0.2,random_state=42)
+############################################################
+#logistics
+from sklearn.metrics import r2_score,mean_squared_error,median_absolute_error
+from sklearn import metrics
+from sklearn.linear_model import LogisticRegression,RidgeCV,LassoCV,ElasticNetCV
+log_reg=LogisticRegression()
+log_reg.fit(X_train,y_train)
+y_pred= log_reg.predict(X_test)
+metrics.accuracy_score(y_pred,y_test)
+#metrics.confusion_matrix(y_pred,y_test)
+###################################################################
+from sklearn.ensemble import RandomForestClassifier
+regressor = RandomForestClassifier(n_estimators=20, random_state=0)  
+regressor.fit(X_train, y_train)  
+y_pred = regressor.predict(X_test) 
+metrics.accuracy_score(y_pred,y_test)
+#metrics.confusion_matrix(y_pred,y_test)
+######################################################################
+import pandas as pd
+import os
+os.chdir("C://Users//Janvi Acharya//Downloads")
+df1=pd.read_csv("satander_test.csv")
+df1.head()
+from sklearn.preprocessing import MinMaxScaler
+scaler=MinMaxScaler()
+cols=list(df1) 
+df1=scaler.fit_transform(df1)
+df1=pd.DataFrame(df1,columns=cols)
+df1.head()
+df1=df1.drop(["ID"],1)
+y_pred= log_reg.predict(df1)
+import collections
+collections.Counter(y_pred)
+
+
