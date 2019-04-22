@@ -1,0 +1,135 @@
+import pandas as pd
+import os
+os.chdir("C://Users//Janvi Acharya//Downloads")
+df=pd.read_csv("Automobile_data.csv")
+df.head()
+df.dtypes
+df['symboling'].unique()
+df['normalized-losses'].unique() #1
+df['make'].unique()
+df['fuel-type'].unique()
+df['aspiration'].unique()
+df['num-of-doors'].unique() #2
+df['body-style'].unique()
+df['drive-wheels'].unique()
+df['engine-location'].unique()
+df['engine-location'].unique()
+df['wheel-base'].unique()
+df['length'].unique()
+df['width'].unique()
+df['curb-weight'].unique()
+df['engine-type'].unique() 
+df['num-of-cylinders'].unique()
+df['engine-size'].unique()
+df['fuel-system'].unique()
+df['bore'].unique() #3
+df['stroke'].unique() #4
+df['horsepower'].unique() #5
+df['peak-rpm'].unique() #6
+df['city-mpg'].unique()
+df['highway-mpg'].unique()
+df['price'].unique() #7
+def clean(column):
+    mean=df[df[column]!="?"][column].astype(float).mean()
+    df[column]=df[column].str.replace('?',str(mean)).astype(float)
+    return df
+def clean_categorical(column):
+    mean = df[df[column]!="?"][column].astype(str).mode()
+    df[column] = df[column].str.replace("?", str(mean)).astype(str)
+    return df
+clean("normalized-losses")
+clean_categorical("num-of-doors")
+clean("peak-rpm")
+clean("price")
+clean("bore")
+clean("horsepower")
+clean("stroke")
+df=df.drop(["make"],1)
+df.head()
+##########################################################################
+numdf = df.select_dtypes(include=np.number)
+categorical = df.select_dtypes(exclude=np.number)
+categorical['num-of-doors'].unique()
+cleanup_nums = {"num-of-doors":     {"four": 4, "two": 2, "0    four\ndtype: object": 4},
+                "num-of-cylinders": {"four": 4, "six": 6, "five": 5, "eight": 8,
+                                     "two": 2, "twelve": 12, "three":3 }}
+categorical.replace(cleanup_nums, inplace=True)
+categorical.head()
+categorical['num-of-doors'].unique()
+#############################################################################
+from sklearn.preprocessing import MinMaxScaler
+scaler=MinMaxScaler()
+cols=list(numdf) 
+numdf=scaler.fit_transform(numdf)
+numdf=pd.DataFrame(numdf,columns=cols)
+numdf.head()
+categorical = pd.get_dummies(categorical)
+categorical.head()
+#################################################################
+df=pd.concat([numdf,categorical],1)
+df.head()
+X=df.drop(["price"],1)
+y=df["price"]
+##########################################################
+from sklearn.feature_selection import RFE
+from sklearn.linear_model import LinearRegression
+lin_reg = LinearRegression()
+#2 is features you want to take for 
+features = RFE(lin_reg,5)
+features.fit(X,y)
+features.ranking_
+features.support_
+cols = list(X)
+cols = pd.Series(cols)
+cols[features.support_]
+############################################################
+selected_features=["width","curb-weight","engine-size","engine-location_front","engine-type_dohcv"]
+from sklearn.model_selection import train_test_split as tts
+X_train,X_test,y_train,y_test=tts(X,y,test_size=0.2,random_state=42)
+from sklearn.metrics import r2_score,mean_squared_error,median_absolute_error
+from sklearn.linear_model import LinearRegression,RidgeCV,LassoCV,ElasticNetCV
+lin_reg=LinearRegression()
+lin_reg.fit(X_train,y_train)
+y_pred= lin_reg.predict(X_test)
+r2_score(y_test,y_pred)
+#np.sqrt(mean_squared_error(y_test,y_pred))
+######################################################################3
+#linear regression with features 
+df_main1=X[selected_features]
+from sklearn.model_selection import train_test_split as tts
+df_main1_train,df_main1_test,y_train,y_test=tts(df_main1,y,test_size=0.2,random_state=42)
+from sklearn.metrics import r2_score,mean_squared_error,median_absolute_error
+from sklearn.linear_model import LinearRegression,RidgeCV,LassoCV,ElasticNetCV
+lin_reg=LinearRegression()
+lin_reg.fit(df_main1_train,y_train)
+y_pred= lin_reg.predict(df_main1_test)
+r2_score(y_test,y_pred)
+#np.sqrt(mean_squared_error(y_test,y_pred))
+#################################################################
+#decison tree 
+from sklearn.tree import DecisionTreeRegressor
+dtr = DecisionTreeRegressor()
+dtr.fit(X_train,y_train)
+y_pred=dtr.predict(X_test)
+dtr.score(X_test,y_test)
+#################################################################
+#decison tree with features  
+from sklearn.tree import DecisionTreeRegressor
+dtr = DecisionTreeRegressor()
+dtr.fit(df_main1_train, y_train)
+y_pred = dtr.predict(df_main1_test) 
+r2_score(y_test,y_pred)
+##################################################################
+#Ridge with numerical and categorical
+from sklearn.linear_model import LinearRegression,RidgeCV,LassoCV,ElasticNetCV
+ridge=RidgeCV(alphas=np.arange(0.1,2,0.1))
+ridge.fit(X_train,y_train)
+y_pred=ridge.predict(X_test)
+ridge.score(X,y)
+###############################################################
+#ridge with feature 
+from sklearn.linear_model import LinearRegression,RidgeCV,LassoCV,ElasticNetCV
+ridge=RidgeCV(alphas=np.arange(0.1,2,0.1))
+ridge.fit(df_main1_train,y_train)
+y_pred=ridge.predict(df_main1_test)
+ridge.score(df_main1,y)
